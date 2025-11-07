@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "./ui/button";
-import { Sparkles, Check, X } from "lucide-react"; // Import icons
+import { Sparkles} from "lucide-react"; // Import icons
 
 // 1. Define the new type for our summary object
 type SummaryData = {
@@ -41,7 +41,8 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
       // 3. The data is now our JSON object
       const data: SummaryData = await response.json();
       setSummaryData(data);
-    } catch (err: any) {
+    } catch (err) {
+      if (err instanceof Error)
       setError(err.message);
     } finally {
       setLoading(false);

@@ -36,7 +36,9 @@ export default function AddIncidentForm({ tutorId, onSuccess }: Props) {
 
       setIncidentDescription("");
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error) {
+    if (error instanceof Error)
+
       setError(error.message);
     } finally {
       setLoading(false);

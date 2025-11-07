@@ -29,7 +29,9 @@ export default function UpdateTutorForm({ onSuccess, tutorId }: Props) {
 
       setTutorName("");
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error) {
+      if (error instanceof Error)
+
       setError(error.message);
     } finally {
       setLoading(false);

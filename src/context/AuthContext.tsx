@@ -1,11 +1,11 @@
 // src/contetx/AuthContext.tsx
-import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
+import {  onAuthStateChanged, type User } from "firebase/auth";
 import React, {
   createContext,
   useContext,
   useEffect,
   useState,
-  type ContextType,
+
   type ReactNode,
 } from "react";
 import { auth } from "../firebase";
