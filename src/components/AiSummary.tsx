@@ -13,9 +13,10 @@ type RubricItem = {
 
 // 2. Update the main data type
 type SummaryData = {
-  performance_summary: string; // <-- Renamed
-  performance_scores: {
-    [key: string]: RubricItem; // <-- This means "an object with any string key"
+  summary: string; // <-- Renamed from 'performance_summary'
+  scores: {
+    // <-- Renamed from 'performance_scores'
+    [key: string]: RubricItem;
   };
 };
 
@@ -68,26 +69,22 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
           AI-Generated Summary
         </h3>
         {/* Use 'performance_summary' */}
-        <p className="mt-4 text-gray-700 text-sm">
-          {summaryData.performance_summary}
-        </p>
+        <p className="mt-4 text-gray-700 text-sm">{summaryData.summary}</p>
 
         <h4 className="font-semibold mt-4">Performance Rubric (1-5):</h4>
         <div className="space-y-2 mt-2">
           {/* 4. THIS IS THE FIX:
             We use Object.entries() to map over the object 
           */}
-          {summaryData.performance_scores &&
-            Object.entries(summaryData.performance_scores).map(
-              ([key, item]) => (
-                <div key={key} className="text-sm">
-                  <span className="font-medium">{`[${
-                    item.score
-                  }/5] ${formatCriterion(key)}`}</span>
-                  <p className="text-gray-600 pl-2">{`- ${item.justification}`}</p>
-                </div>
-              )
-            )}
+          {summaryData.scores &&
+            Object.entries(summaryData.scores).map(([key, item]) => (
+              <div key={key} className="text-sm">
+                <span className="font-medium">{`[${
+                  item.score
+                }/5] ${formatCriterion(key)}`}</span>
+                <p className="text-gray-600 pl-2">{`- ${item.justification}`}</p>
+              </div>
+            ))}
         </div>
         <Button
           variant="link"
