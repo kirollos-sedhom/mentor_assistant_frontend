@@ -3,18 +3,31 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "./ui/button";
-import { Sparkles} from "lucide-react"; // Import icons
+import { Sparkles } from "lucide-react"; // Import icons
 
-// 1. Define the new type for our summary object
-type SummaryData = {
-  summary: string;
-  patterns: string[];
-  suggestions: string[];
+// 1. Define the type for the new Rubric item
+type RubricItem = {
+  score: number;
+  justification: string;
 };
+
+// 2. Update the main data type
+type SummaryData = {
+  performance_summary: string; // <-- Renamed
+  performance_scores: {
+    [key: string]: RubricItem; // <-- This means "an object with any string key"
+  };
+};
+
+// A helper function to format the key
+// (e.g., 'suggests_new_ideas' -> 'Suggests New Ideas')
+function formatCriterion(key: string) {
+  return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
 export default function AiSummary({ tutorId }: { tutorId: string }) {
   const { user } = useAuth();
-  // 2. State will hold the object or null
+
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +41,7 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
     try {
       const token = await user.getIdToken();
       const response = await fetch(
-        `https://mentor-assistant-backend.vercel.app/summary/${user.uid}/${tutorId}`,
+        `http://localhost:3000/summary/${user.uid}/${tutorId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -38,18 +51,15 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
         throw new Error(err.error || "Failed to fetch summary");
       }
 
-      // 3. The data is now our JSON object
       const data: SummaryData = await response.json();
       setSummaryData(data);
     } catch (err) {
-      if (err instanceof Error)
-      setError(err.message);
+      if (err instanceof Error) setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
-  // 4. This is the new, beautifully formatted JSX
   if (summaryData) {
     return (
       <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-200">
@@ -57,26 +67,28 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
           <Sparkles size={16} />
           AI-Generated Summary
         </h3>
+        {/* Use 'performance_summary' */}
+        <p className="mt-4 text-gray-700 text-sm">
+          {summaryData.performance_summary}
+        </p>
 
-        {/* The Summary */}
-        <p className="mt-4 text-gray-700 text-sm">{summaryData.summary}</p>
-
-        {/* The Patterns */}
-        <h4 className="font-semibold mt-4">Key Patterns:</h4>
-        <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 mt-2">
-          {summaryData.patterns.map((pattern, i) => (
-            <li key={i}>{pattern}</li>
-          ))}
-        </ul>
-
-        {/* The Suggestions */}
-        <h4 className="font-semibold mt-4">Suggestions:</h4>
-        <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 mt-2">
-          {summaryData.suggestions.map((suggestion, i) => (
-            <li key={i}>{suggestion}</li>
-          ))}
-        </ul>
-
+        <h4 className="font-semibold mt-4">Performance Rubric (1-5):</h4>
+        <div className="space-y-2 mt-2">
+          {/* 4. THIS IS THE FIX:
+            We use Object.entries() to map over the object 
+          */}
+          {summaryData.performance_scores &&
+            Object.entries(summaryData.performance_scores).map(
+              ([key, item]) => (
+                <div key={key} className="text-sm">
+                  <span className="font-medium">{`[${
+                    item.score
+                  }/5] ${formatCriterion(key)}`}</span>
+                  <p className="text-gray-600 pl-2">{`- ${item.justification}`}</p>
+                </div>
+              )
+            )}
+        </div>
         <Button
           variant="link"
           size="sm"
