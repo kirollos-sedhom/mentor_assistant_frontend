@@ -42,7 +42,7 @@ export default function AiSummary({ tutorId }: { tutorId: string }) {
     try {
       const token = await user.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/summary/${user.uid}/${tutorId}`,
+        `https://mentor-assistant-backend.vercel.app/summary/${user.uid}/${tutorId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
